@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  /* text-align: center; */
 }
 
 .App-logo {
@@ -35,4 +35,16 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+:root {
+  --amplify-primary-color: #16a3b8;
+  --amplify-primary-tint: #16a3b8;
+  --amplify-primary-shade: #16a3b8;
+  --amplify-secondary-color: #16a3b8;
+  --amplify-tertiary-color: #16a3b8;
+}
+
+amplify-authenticator {
+  --container-align: "unset";
 }
