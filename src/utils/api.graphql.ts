@@ -13,6 +13,22 @@ export type CreateS3FileInput = {
   user_id?: string | null,
 };
 
+export type UpdateS3FileInput = {
+  id_concat?: string | null,
+  key_name?: string | null,
+  bucket_name?: string | null,
+  last_modified?: string | null,
+  size?: number | null,
+  tenant_id?: string | null,
+  url?: string | null,
+  user_id?: string | null,
+};
+
+export type DeleteS3FileInput = {
+  id_concat: string,
+  key_name: string,
+};
+
 export type ModelS3FileConditionInput = {
   id_concat?: ModelStringInput | null,
   key_name?: ModelStringInput | null,
@@ -79,22 +95,6 @@ export type ModelIntInput = {
   attributeType?: ModelAttributeTypes | null,
 };
 
-export type UpdateS3FileInput = {
-  id_concat?: string | null,
-  key_name?: string | null,
-  bucket_name?: string | null,
-  last_modified?: string | null,
-  size?: number | null,
-  tenant_id?: string | null,
-  url?: string | null,
-  user_id?: string | null,
-};
-
-export type DeleteS3FileInput = {
-  id_concat: string,
-  key_name: string,
-};
-
 export type ModelS3FileFilterInput = {
   id_concat?: ModelStringInput | null,
   key_name?: ModelStringInput | null,
@@ -107,6 +107,60 @@ export type ModelS3FileFilterInput = {
   and?: Array< ModelS3FileFilterInput | null > | null,
   or?: Array< ModelS3FileFilterInput | null > | null,
   not?: ModelS3FileFilterInput | null,
+};
+
+export type CreateS3FileMessageMutationVariables = {
+  input: CreateS3FileInput,
+};
+
+export type CreateS3FileMessageMutation = {
+  createS3FileMessage:  {
+    __typename: "S3File",
+    id_concat: string,
+    key_name: string,
+    bucket_name: string | null,
+    last_modified: string | null,
+    size: number | null,
+    tenant_id: string | null,
+    url: string | null,
+    user_id: string | null,
+  } | null,
+};
+
+export type UpdateS3FileMessageMutationVariables = {
+  input: UpdateS3FileInput,
+};
+
+export type UpdateS3FileMessageMutation = {
+  updateS3FileMessage:  {
+    __typename: "S3File",
+    id_concat: string,
+    key_name: string,
+    bucket_name: string | null,
+    last_modified: string | null,
+    size: number | null,
+    tenant_id: string | null,
+    url: string | null,
+    user_id: string | null,
+  } | null,
+};
+
+export type DeleteS3FileMessageMutationVariables = {
+  input: DeleteS3FileInput,
+};
+
+export type DeleteS3FileMessageMutation = {
+  deleteS3FileMessage:  {
+    __typename: "S3File",
+    id_concat: string,
+    key_name: string,
+    bucket_name: string | null,
+    last_modified: string | null,
+    size: number | null,
+    tenant_id: string | null,
+    url: string | null,
+    user_id: string | null,
+  } | null,
 };
 
 export type CreateS3FileMutationVariables = {
@@ -168,6 +222,7 @@ export type DeleteS3FileMutation = {
 
 export type GetS3FileQueryVariables = {
   id_concat: string,
+  key_name: string,
 };
 
 export type GetS3FileQuery = {

@@ -3,8 +3,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const getS3File = /* GraphQL */ `
-  query GetS3File($id_concat: String!) {
-    getS3File(id_concat: $id_concat) {
+  query GetS3File($id_concat: String!, $key_name: String!) {
+    getS3File(id_concat: $id_concat, key_name: $key_name) {
       id_concat
       key_name
       bucket_name
