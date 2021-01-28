@@ -49,6 +49,7 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [isDownloading, setIsDownloading] = React.useState<Array<string>>([]);
 
   const { files } = props;
 
@@ -89,6 +90,9 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
             {files.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             .sort((a, b) => a.file_name! > b.file_name! ? 1 : -1)
             .map((file, index) => {
+              const bucket_name = file.bucket_name;
+              const key_name = file.key_name;
+
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                   {columns.map((column) => {
@@ -100,21 +104,37 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
                     );
                   })}
                   <TableCell>
-                    <IconButton onClick={async () => {
-                      const bucket_name = file.bucket_name;
-                      const key_name = file.key_name;
-
-                      if (bucket_name && key_name) {
-                        restApi.downloadFile(bucket_name, key_name)
-                        .then((response) => {
-                          console.log("download response", response);
-                          const url = response.data.result.url;
-                          window.open(url);
-                        })
-                      }
-                    }}>
-                      <DownloadIcon />
-                    </IconButton>
+                    {key_name && isDownloading.includes(key_name) ? (
+                      <CircularProgress size={25} style={{ margin: "12px" }} />
+                    ) : (
+                      <IconButton onClick={async () => {
+                        if (bucket_name && key_name) {
+                          setIsDownloading([
+                            ...isDownloading,
+                            key_name,
+                          ]);
+                          // setIsDownloading((prevState) => {
+                          //   const newArray = prevState;
+                          //   newArray.push(key_name);
+                          //   console.log("newArray", newArray);
+                          //   return newArray;
+                          // });
+                          restApi.downloadFile(bucket_name, key_name)
+                          .then((response) => {
+                            console.log("download response", response);
+                            const url = response.data.result.url;
+  
+                            setIsDownloading((prevState) => prevState.filter((item) => {
+                              return item !== key_name;
+                            }));
+  
+                            window.open(url);
+                          })
+                        }
+                      }}>
+                        <DownloadIcon />
+                      </IconButton>
+                    )}
                   </TableCell>
                 </TableRow>
               );
