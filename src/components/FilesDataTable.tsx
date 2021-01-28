@@ -8,11 +8,13 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import { Toolbar, Typography } from '@material-ui/core';
+import { CircularProgress, IconButton, Toolbar, Typography } from '@material-ui/core';
+import DownloadIcon from '@material-ui/icons/CloudDownload';
 import { IFile } from '../types';
+import restApi from '../utils/api';
 
 interface Column {
-  id: 'id_concat' | 'key_name' | 'bucket_name' | 'last_modified' | 'size' | 'tenant_id' | 'user_id';
+  id: 'file_name' | 'owner_id' | 'size' | 'last_modified';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -20,8 +22,8 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { id: 'key_name', label: 'Key Name', minWidth: 170 },
-  { id: 'user_id', label: 'User ID', minWidth: 100 },
+  { id: 'file_name', label: 'File Name', minWidth: 170 },
+  { id: 'owner_id', label: 'Owner ID', minWidth: 100 },
   { id: 'size', label: 'Size', minWidth: 100 },
   { id: 'last_modified', label: 'Last Modified Date', minWidth: 170 },
 ];
@@ -39,7 +41,8 @@ const useStyles = makeStyles({
 });
 
 interface FilesDataTableProps {
-    files: Array<Partial<IFile>>
+    files: Array<Partial<IFile>>,
+    loading?: boolean
 };
 
 const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => {
@@ -66,7 +69,7 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
         </Typography>
       </Toolbar>
       <TableContainer className={classes.container}>
-        {props.files.length > 0 ? (
+        {(props.files.length > 0) ? (
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -79,10 +82,13 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
                   {column.label}
                 </TableCell>
               ))}
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
-            {files.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((file, index) => {
+            {files.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .sort((a, b) => a.file_name! > b.file_name! ? 1 : -1)
+            .map((file, index) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                   {columns.map((column) => {
@@ -93,15 +99,36 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
                       </TableCell>
                     );
                   })}
+                  <TableCell>
+                    <IconButton onClick={async () => {
+                      const bucket_name = file.bucket_name;
+                      const key_name = file.key_name;
+
+                      if (bucket_name && key_name) {
+                        restApi.downloadFile(bucket_name, key_name)
+                        .then((response) => {
+                          console.log("download response", response);
+                          const url = response.data.result.url;
+                          window.open(url);
+                        })
+                      }
+                    }}>
+                      <DownloadIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
+        ) : (props.loading) ? (
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '50px' }}>
+            <CircularProgress />
+          </div>
         ) : (
-        <Typography align="center" style={{paddingBottom: "50px"}}>
-          No files found
-        </Typography>
+          <Typography align="center" style={{paddingBottom: "50px"}}>
+            No files found
+          </Typography>
         )}
       </TableContainer>
       {props.files.length > 0 &&
