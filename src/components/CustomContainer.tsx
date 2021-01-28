@@ -13,14 +13,14 @@ type CustomContainerProps = {
 };
 
 const CustomContainer: React.FunctionComponent<CustomContainerProps> = (props) => {
-  const { loading, children } = props;
+  const { loading, children, height=1, width=1, mx=1 } = props;
 
   return (
     <Box
       display="flex"
-      height={props.height || 1}
-      width={props.width}
-      mx={props.mx}
+      height={height}
+      width={width}
+      mx={mx}
     >
       {loading ? (
         <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", ...props.style }}>
