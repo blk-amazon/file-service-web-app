@@ -23,11 +23,11 @@ const CustomContainer: React.FunctionComponent<CustomContainerProps> = (props) =
       mx={props.mx}
     >
       {loading ? (
-        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", ...props.style }}>
           <CircularProgress />
         </div>
       ) : (
-        <div style={{ width: "100%" }}>
+        <div style={{ width: "100%", ...props.style }}>
           {children}
         </div>
       )}
