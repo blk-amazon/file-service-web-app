@@ -1,14 +1,16 @@
 import { CognitoIdToken } from "amazon-cognito-identity-js";
 
 export interface IFile {
-	id_concat: string | null
-	key_name: string | null
-	bucket_name: string | null
-	last_modified: String | null
-	size: Number | null
-	tenant_id: string | null
-	url: string | null
-	user_id: string | null
+  key_name: string | null,
+  file_name: string | null,
+  owner_id: string | null,
+  tenant_id: string | null,
+  size: Number | null,
+	last_modified: string | null,
+  url: string | null,
+	id_concat?: string | null,
+	bucket_name?: string | null,
+	
 }
 
 export interface IUser {
@@ -55,4 +57,9 @@ export interface ISignUpParams {
 
 export interface SubscriptionValue<T> {
   value: { data: T };
+}
+
+export interface SubscriptionResponse<T> {
+  provider: any,
+  value: { data: T }
 }
