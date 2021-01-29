@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3, 0, 2),
   },
   logo: {
-    maxWidth: 600,
+    maxWidth: "100%",
     marginBottom: 100,
   }
 }));
