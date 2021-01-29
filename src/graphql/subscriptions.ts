@@ -44,3 +44,24 @@ export const onDeleteS3File = /* GraphQL */ `
     }
   }
 `;
+export const onCreateS3FileMessage = /* GraphQL */ `
+  subscription OnCreateS3FileMessage {
+    onCreateS3FileMessage {
+      tenant_id
+    }
+  }
+`;
+export const onUpdateS3FileMessage = /* GraphQL */ `
+  subscription OnUpdateS3FileMessage {
+    onUpdateS3FileMessage {
+      tenant_id
+    }
+  }
+`;
+export const onDeleteS3FileMessage = /* GraphQL */ `
+  subscription OnDeleteS3FileMessage {
+    onDeleteS3FileMessage {
+      tenant_id
+    }
+  }
+`;
