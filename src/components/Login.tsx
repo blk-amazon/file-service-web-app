@@ -12,10 +12,10 @@ import Container from '@material-ui/core/Container';
 
 import CustomContainer from '../components/CustomContainer';
 
-import { useAuth } from '../contexts/auth-context';
 import { ViewState } from '../constants';
 
 import logo from '../assets/images/logo.png';
+import { Auth } from 'aws-amplify';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -45,7 +45,6 @@ interface LoginFormProps {
 
 const LoginForm: React.FunctionComponent<LoginFormProps> = (props) => {
   const classes = useStyles();
-  const authState = useAuth();
 
   const [email, setEmail] = React.useState<string>();
   const [password, setPassword] = React.useState<string>();
@@ -56,7 +55,7 @@ const LoginForm: React.FunctionComponent<LoginFormProps> = (props) => {
   const handlePasswordChange = (e: any) => setPassword(e.currentTarget.value);
 
   return (
-    <CustomContainer loading={authState.status === ViewState.Busy}>
+    <CustomContainer>
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
@@ -95,7 +94,7 @@ const LoginForm: React.FunctionComponent<LoginFormProps> = (props) => {
             onClick={(e) => {
               // e.preventDefault();
               if (email && password) {
-                authState.login(email, password)
+                Auth.signIn(email, password)
                 .then((response) => {
                   console.log("Logged in...", response);
                 })

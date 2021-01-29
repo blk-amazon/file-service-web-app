@@ -13,7 +13,7 @@ type CustomContainerProps = {
 };
 
 const CustomContainer: React.FunctionComponent<CustomContainerProps> = (props) => {
-  const { loading, children, height=1, width=1, mx=1 } = props;
+  const { loading, children, height=1, width=1, mx=0 } = props;
 
   return (
     <Box

@@ -3,7 +3,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { List, ListItem, ListItemText, MenuItem, Menu, ListItemIcon } from '@material-ui/core';
 
 import { ExpandLess, ExpandMore, ExitToApp } from '@material-ui/icons';
-import { useAuth } from '../contexts/auth-context';
+import { Auth } from 'aws-amplify';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingBottom: "0px",
     },
     menuButton: {
-      paddingRight: "25px",
+      // paddingRight: "25px",
     },
     menuIcon: {
       display: "flex",
@@ -38,24 +38,23 @@ type UserMenuProps = {
 const UserMenu: React.FunctionComponent<UserMenuProps> = (props) => {
   const { user } = props;
 
-  const authState = useAuth();
-
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  let anchorEl = React.useRef<HTMLDivElement>(null);
   const [open, setOpen] = React.useState<boolean>(false);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    // anchorEl = event.currentTarget;
     setOpen(!open);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    // setAnchorEl(null);
     setOpen(false);
   };
 
   return (
-    <div>
+    <div ref={anchorEl}>
       <List component="nav">
         <ListItem
           button
@@ -71,7 +70,7 @@ const UserMenu: React.FunctionComponent<UserMenuProps> = (props) => {
       </List>
       <Menu
         id="lock-menu"
-        anchorEl={anchorEl}
+        anchorEl={anchorEl.current}
         keepMounted
         open={open}
         onClose={handleClose}
@@ -87,7 +86,9 @@ const UserMenu: React.FunctionComponent<UserMenuProps> = (props) => {
       >
         <MenuItem
           dense={true}
-          onClick={authState.logout}
+          onClick={async () => {
+            await Auth.signOut();
+          }}
         >
           <ListItemText
             primary="Logout"

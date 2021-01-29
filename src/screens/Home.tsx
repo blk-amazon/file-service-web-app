@@ -4,20 +4,14 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Dropzone from 'react-dropzone';
-import { concat, map, mapKeys, mapValues, union, unionBy, unionWith, uniqBy } from 'lodash';
+import { unionBy } from 'lodash';
 
-import Amplify, { Auth, API, graphqlOperation } from 'aws-amplify';
-import GraphQLAPI from '@aws-amplify/api-graphql';
-import Observable from 'zen-observable-ts';
+import { Auth } from 'aws-amplify';
 
-import { onCreateS3File, onUpdateS3File } from '../graphql/subscriptions';
-import { listS3Files } from '../graphql/queries';
+import { onCreateS3File, onCreateS3FileMessage, onUpdateS3File } from '../graphql/subscriptions';
 
 import CustomContainer from '../components/CustomContainer';
 import FilesDataTable from '../components/FilesDataTable';
-
-import { useAuth } from '../contexts/auth-context';
-import { ViewState } from '../constants';
 
 import logo from '../assets/images/logo-white.png';
 
@@ -25,10 +19,10 @@ import restApi from '../utils/api';
 import graphqlApi from '../utils/graphql';
 
 import { AppBar, Container, Toolbar, Typography, Box, LinearProgress } from '@material-ui/core';
-// import TenantUser from '../components/TenantUser';
+
 import UserMenu from '../components/UserMenu';
 import { IFile, IUser, SubscriptionResponse } from '../types';
-import { OnCreateS3FileSubscription, OnUpdateS3FileSubscription } from '../utils/api.graphql';
+import { OnCreateS3FileSubscription, OnUpdateS3FileSubscription, OnCreateS3FileMessageSubscription } from '../utils/api.graphql';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -61,122 +55,137 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface HomeScreenProps {
-  user: Partial<IUser>
+  user: IUser
 }
 
 const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
   const classes = useStyles();
-  const authState = useAuth();
 
   const { user } = props;
+  // console.log(user);
 
   const [files, setFiles] = React.useState<Array<Partial<IFile>>>([]);
   const [filesLoading, setFilesLoading] = React.useState<boolean>(false);
   const [fileUploading, setFileUploading] = React.useState<boolean>(false);
 
-  let onCreateS3FileSubscription: Observable<object>;
-  let onUpdateS3FileSubscription: Observable<object>;
+  const getFiles = async (skipLoading: boolean = false) => {
+    const creds = await Auth.currentUserCredentials();
+    // console.log("currentUserCredentials", creds);
 
-  const getFiles = async () => {
-    // const response = await graphqlApi.query(listS3Files);
     setFilesLoading(true);
 
-    const tokenResponse = await restApi.getNewToken("bkilgore", "tenantA");
-    const { token } = tokenResponse.data.result;
-    
-    const headers = {
-      "x-token": token
-    };
-    const response = await restApi.getObjectList(headers);
-    console.log("getFiles", response);
+    try {
+      const { username, tenantId } = user;
+      // console.log("user", username, tenantId);
+      const user_parts = username.split("@");
+      const tokenResponse = await restApi.getNewToken(user_parts[0], tenantId);
+      const { token } = tokenResponse.data.result;
+      
+      const headers = {
+        "x-token": token
+      };
+      const response = await restApi.getObjectList(headers);
+      console.log("getFiles", response);
 
-    const result = response.data.result;
-    const items: Array<IFile> = result["Contents"].map((item: any) => {
-      console.log("item", item);
-      const key_name = item["Key"];
-      const key_parts = key_name ? key_name.split("/") : [];
-      const [ tenant_id, user_id, file_name ] = key_parts;
+      const result = response.data.result;
+      const items: Array<IFile> = result["Contents"].map((item: any) => {
+        // console.log("item", item);
+        const key_name: string = item["Key"];
+        const key_parts: Array<any> = key_name ? key_name.split("/") : [];
+        const file_name = key_parts.pop();
+        const user_id = key_parts.pop();
+        // const [ user_id, file_name ] = key_parts;
 
-      return {
-        key_name: key_name,
-        file_name: file_name,
-        owner_id: user_id,
-        size: item["Size"],
-        last_modified: item["LastModified"],
-        bucket_name: result["Name"],
-      }
-    });
-    console.log(items);
+        return {
+          key_name: key_name,
+          file_name: file_name,
+          owner_id: user_id,
+          size: item["Size"],
+          last_modified: item["LastModified"],
+          bucket_name: result["Name"],
+        }
+      });
+      // console.log(items);
 
-    setFiles(items);
+      setFiles(items);
+    } catch (error: any) {
+      console.log(error);
+    }
+
     setFilesLoading(false);
   }
 
   const initializeSubscriptions = () => {
-    onCreateS3FileSubscription = graphqlApi.query(onCreateS3File, (response: SubscriptionResponse<OnCreateS3FileSubscription>) => {
-      console.log("onCreateS3FileSubscription", response);
-
+    graphqlApi.query(onCreateS3FileMessage,  (response: SubscriptionResponse<OnCreateS3FileMessageSubscription>) => {
+      console.log("OnCreateS3FileMessageSubscription", response);
       const { data } = response.value;
-      const file = data.onCreateS3File!;
-      const key_name = file.key_name;
-      const key_parts = key_name ? key_name.split("/") : [];
-      const [ tenant_id, user_id, file_name ] = key_parts;
-      console.log("key_parts", key_parts);
+      const message = data.onCreateS3FileMessage;
+      const tenant_id = message?.tenant_id;
 
-      const item: IFile = {
-        key_name: key_name,
-        bucket_name: file.bucket_name,
-        file_name: file_name,
-        owner_id: user_id,
-        last_modified: file.last_modified,
-        size: file.size,
-        tenant_id: tenant_id,
-        url: file.url,
-      };
+      if (tenant_id && tenant_id === user.tenantId) {
+        getFiles(true);
+      }
 
-      setFiles(prevState => {
-        console.log("prevState", prevState);
-        const newFiles = unionBy([item], prevState, 'key_name');
-        console.log("newFiles", newFiles);
-        return newFiles;
-      });
-    }) as Observable<object>;
+      // const { data } = response.value;
+      // const file = data.onCreateS3File!;
+      // const key_name = file.key_name;
+      // const key_parts = key_name ? key_name.split("/") : [];
+      // const [ tenant_id, user_id, file_name ] = key_parts;
+      // // console.log("key_parts", key_parts);
 
-    onUpdateS3FileSubscription = graphqlApi.query(onUpdateS3File, (response: SubscriptionResponse<OnUpdateS3FileSubscription>) => {
-      console.log("onUpdateS3FileSubscription", response);
+      // const item: IFile = {
+      //   key_name: key_name,
+      //   bucket_name: file.bucket_name,
+      //   file_name: file_name,
+      //   owner_id: user_id,
+      //   last_modified: file.last_modified,
+      //   size: file.size,
+      //   tenant_id: tenant_id,
+      //   url: file.url,
+      // };
 
-      const { data } = response.value;
-      const file = data.onUpdateS3File!;
-      const key_name = file.key_name;
-      const key_parts = key_name ? key_name.split("/") : [];
-      const [ tenant_id, user_id, file_name ] = key_parts;
+      // setFiles(prevState => {
+      //   const newFiles = unionBy([item], prevState, 'key_name');
+      //   return newFiles;
+      // });
+    });
 
-      const item: IFile = {
-        key_name: key_name,
-        bucket_name: file.bucket_name,
-        file_name: file_name,
-        owner_id: user_id,
-        last_modified: file.last_modified,
-        size: file.size,
-        tenant_id: tenant_id,
-        url: file.url,
-      };
+    // graphqlApi.query(onUpdateS3File, (response: SubscriptionResponse<OnUpdateS3FileSubscription>) => {
+    //   console.log("onUpdateS3FileSubscription", response);
+
+    //   const { data } = response.value;
+    //   const file = data.onUpdateS3File!;
+    //   const key_name = file.key_name;
+    //   const key_parts = key_name ? key_name.split("/") : [];
+    //   const [ tenant_id, user_id, file_name ] = key_parts;
+
+    //   const item: IFile = {
+    //     key_name: key_name,
+    //     bucket_name: file.bucket_name,
+    //     file_name: file_name,
+    //     owner_id: user_id,
+    //     last_modified: file.last_modified,
+    //     size: file.size,
+    //     tenant_id: tenant_id,
+    //     url: file.url,
+    //   };
     
-      // console.log("files", files);
+    //   // console.log("files", files);
 
-      setFiles(prevState => {
-        console.log(prevState);
-        const newFiles = unionBy([item], prevState, 'key_name');
-        return newFiles;
-      });
-    }) as Observable<object>;
+    //   setFiles(prevState => {
+    //     const newFiles = unionBy([item], prevState, 'key_name');
+    //     return newFiles;
+    //   });
+    // });
   }
 
   const onDrop = async (acceptedFiles: Array<File>) => {
+    const { username, tenantId } = user;
     // Do something with the files
     console.log("File dropped!");
     setFileUploading(true);
-    const tokenResponse = await restApi.getNewToken("bkilgore", "tenantA");
+    const user_parts = username.split("@");
+    const tokenResponse = await restApi.getNewToken(user_parts[0], tenantId);
     console.log("tokenResponse", tokenResponse);
     const { token } = tokenResponse.data.result;
     // const token1 = await authState.currentUserToken();
@@ -204,18 +213,18 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
   }, []);
 
   return (
-    <CustomContainer loading={authState.status === ViewState.Busy}>
+    <CustomContainer>
       <CssBaseline />
       <AppBar elevation={1} position="static" style={{ backgroundColor: "#16a3b8" }}>
         <Toolbar style={{ justifyContent: "space-between" }}>
           <img src={logo} style={{ height: 32 }} alt="MasterControl Logo" />
           <Typography variant="h6" className={classes.title}>
-            {user.attributes?.['custom:tenant_id']}
+            {user.tenantId}
           </Typography>
           <div>
             <UserMenu
-              tenant="TenantA"
-              user="bkilgore"
+              tenant={user.tenantId!}
+              user={user.username!}
             />
           </div>
         </Toolbar>

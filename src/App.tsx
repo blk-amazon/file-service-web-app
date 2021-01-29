@@ -6,8 +6,9 @@ import logo from './assets/images/logo.png';
 import './App.css';
 import { Auth } from 'aws-amplify';
 
-import { AmplifyAuthenticator, AmplifySignUp } from '@aws-amplify/ui-react';
+import { AmplifyAuthenticator, AmplifySignIn, AmplifySignUp } from '@aws-amplify/ui-react';
 import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
+import { CognitoUser, CognitoUserAttribute } from 'amazon-cognito-identity-js';
 
 import { IUser } from './types';
 import HomeScreen from './screens/Home';
@@ -40,39 +41,76 @@ const AuthStateApp = () => {
   const classes = useStyles();
   
   const [authState, setAuthState] = React.useState<AuthState>();
-  const [user, setUser] = React.useState<Partial<IUser> | undefined>();
+  const [user, setUser] = React.useState<IUser>();
 
   React.useEffect(() => {
-      onAuthUIStateChange((nextAuthState, authData) => {
-          console.log("nextAuthState", nextAuthState);
-          console.log("authData", authData);
-          setAuthState(nextAuthState);
-          setUser(authData);
-          Auth.currentSession()
-              .then(data => console.log(data))
-              .catch(err => console.log(err));
+      onAuthUIStateChange(async (nextAuthState: AuthState, authData?: object) => {
+        setAuthState(nextAuthState);
+        console.log("authData", authData);
+        const cognitoUserData: CognitoUser = authData as CognitoUser;
+
+        if (nextAuthState === AuthState.SignedIn) {
+          let userAttributes: any = {};
+          cognitoUserData.getUserData((err, data) => {
+            if (err) {
+              console.error(err);
+            } else {
+              data?.UserAttributes.forEach(({Name, Value}) => {
+                userAttributes[Name] = Value;
+              });
+
+              setUser({
+                id: userAttributes.sub,
+                username: userAttributes.nickname,
+                email: userAttributes.email,
+                isConfirmed: userAttributes.email_verified,
+                tenantId: userAttributes["custom:tenant_id"],
+              });
+            }
+          });
+        }
+        // Auth.currentSession()
+        //     .then(data => console.log(data))
+        //     .catch(err => console.log(err));
       });
   }, []);
 
   return authState === AuthState.SignedIn && user ? (
-      <div className="App">
-        <HomeScreen user={user} />
-      </div>
+    <div className="App">
+      <HomeScreen user={user} />
+    </div>
   ) : (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
         <img src={logo} className={classes.logo} alt="logo" />
         <AmplifyAuthenticator>
+          <AmplifySignIn
+            slot="sign-in"
+            formFields={[
+              {
+                type: "email",
+                label: "Email Address",
+                placeholder: "Email",
+                required: true,
+              },
+              {
+                type: "password",
+                label: "Password",
+                placeholder: "Password",
+                required: true,
+              }
+            ]}
+          ></AmplifySignIn>
           <AmplifySignUp 
             slot="sign-up"
             usernameAlias="email"
             // handleSubmit={signUp}
             formFields={[
               {
-                type: "username",
+                type: "nickname",
                 label: "Username",
-                placeholder: "username",
+                placeholder: "Username",
                 required: true,
               },
               {

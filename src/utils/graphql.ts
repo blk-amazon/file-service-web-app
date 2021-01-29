@@ -5,15 +5,10 @@ import { API, graphqlOperation, GraphQLResult } from '@aws-amplify/api';
 import Observable from 'zen-observable-ts';
 
 export default (function() {
-  const subscriptions = [];
 
   return {
     query: (operation: any, next?: (value: any)=>void) => {
-      const type = API.getGraphqlOperationType(operation);
-      // console.log("type", type);
-      
       const request = API.graphql(graphqlOperation(operation));
-      // if (type === "subscription") {
       if (request instanceof Observable) {
         request.subscribe({
           next: next,

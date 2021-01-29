@@ -2,6 +2,10 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
+export type CreateS3FileMessageInput = {
+  tenant_id: string,
+};
+
 export type CreateS3FileInput = {
   id_concat: string,
   key_name: string,
@@ -11,22 +15,6 @@ export type CreateS3FileInput = {
   tenant_id?: string | null,
   url?: string | null,
   user_id?: string | null,
-};
-
-export type UpdateS3FileInput = {
-  id_concat?: string | null,
-  key_name?: string | null,
-  bucket_name?: string | null,
-  last_modified?: string | null,
-  size?: number | null,
-  tenant_id?: string | null,
-  url?: string | null,
-  user_id?: string | null,
-};
-
-export type DeleteS3FileInput = {
-  id_concat: string,
-  key_name: string,
 };
 
 export type ModelS3FileConditionInput = {
@@ -95,6 +83,22 @@ export type ModelIntInput = {
   attributeType?: ModelAttributeTypes | null,
 };
 
+export type UpdateS3FileInput = {
+  id_concat?: string | null,
+  key_name?: string | null,
+  bucket_name?: string | null,
+  last_modified?: string | null,
+  size?: number | null,
+  tenant_id?: string | null,
+  url?: string | null,
+  user_id?: string | null,
+};
+
+export type DeleteS3FileInput = {
+  id_concat: string,
+  key_name: string,
+};
+
 export type ModelS3FileFilterInput = {
   id_concat?: ModelStringInput | null,
   key_name?: ModelStringInput | null,
@@ -110,56 +114,35 @@ export type ModelS3FileFilterInput = {
 };
 
 export type CreateS3FileMessageMutationVariables = {
-  input: CreateS3FileInput,
+  input: CreateS3FileMessageInput,
 };
 
 export type CreateS3FileMessageMutation = {
   createS3FileMessage:  {
-    __typename: "S3File",
-    id_concat: string,
-    key_name: string,
-    bucket_name: string | null,
-    last_modified: string | null,
-    size: number | null,
+    __typename: "S3FileMessage",
     tenant_id: string | null,
-    url: string | null,
-    user_id: string | null,
   } | null,
 };
 
 export type UpdateS3FileMessageMutationVariables = {
-  input: UpdateS3FileInput,
+  input: CreateS3FileMessageInput,
 };
 
 export type UpdateS3FileMessageMutation = {
   updateS3FileMessage:  {
-    __typename: "S3File",
-    id_concat: string,
-    key_name: string,
-    bucket_name: string | null,
-    last_modified: string | null,
-    size: number | null,
+    __typename: "S3FileMessage",
     tenant_id: string | null,
-    url: string | null,
-    user_id: string | null,
   } | null,
 };
 
 export type DeleteS3FileMessageMutationVariables = {
-  input: DeleteS3FileInput,
+  input: CreateS3FileMessageInput,
 };
 
 export type DeleteS3FileMessageMutation = {
   deleteS3FileMessage:  {
-    __typename: "S3File",
-    id_concat: string,
-    key_name: string,
-    bucket_name: string | null,
-    last_modified: string | null,
-    size: number | null,
+    __typename: "S3FileMessage",
     tenant_id: string | null,
-    url: string | null,
-    user_id: string | null,
   } | null,
 };
 
@@ -171,8 +154,8 @@ export type CreateS3FileMutationVariables = {
 export type CreateS3FileMutation = {
   createS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
@@ -190,8 +173,8 @@ export type UpdateS3FileMutationVariables = {
 export type UpdateS3FileMutation = {
   updateS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
@@ -209,8 +192,8 @@ export type DeleteS3FileMutationVariables = {
 export type DeleteS3FileMutation = {
   deleteS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
@@ -228,8 +211,8 @@ export type GetS3FileQueryVariables = {
 export type GetS3FileQuery = {
   getS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
@@ -250,8 +233,8 @@ export type ListS3FilesQuery = {
     __typename: "ModelS3FileConnection",
     items:  Array< {
       __typename: "S3File",
-      id_concat: string,
-      key_name: string,
+      id_concat: string | null,
+      key_name: string | null,
       bucket_name: string | null,
       last_modified: string | null,
       size: number | null,
@@ -266,8 +249,8 @@ export type ListS3FilesQuery = {
 export type OnCreateS3FileSubscription = {
   onCreateS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
@@ -280,8 +263,8 @@ export type OnCreateS3FileSubscription = {
 export type OnUpdateS3FileSubscription = {
   onUpdateS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
@@ -294,13 +277,34 @@ export type OnUpdateS3FileSubscription = {
 export type OnDeleteS3FileSubscription = {
   onDeleteS3File:  {
     __typename: "S3File",
-    id_concat: string,
-    key_name: string,
+    id_concat: string | null,
+    key_name: string | null,
     bucket_name: string | null,
     last_modified: string | null,
     size: number | null,
     tenant_id: string | null,
     url: string | null,
     user_id: string | null,
+  } | null,
+};
+
+export type OnCreateS3FileMessageSubscription = {
+  onCreateS3FileMessage:  {
+    __typename: "S3FileMessage",
+    tenant_id: string | null,
+  } | null,
+};
+
+export type OnUpdateS3FileMessageSubscription = {
+  onUpdateS3FileMessage:  {
+    __typename: "S3FileMessage",
+    tenant_id: string | null,
+  } | null,
+};
+
+export type OnDeleteS3FileMessageSubscription = {
+  onDeleteS3FileMessage:  {
+    __typename: "S3FileMessage",
+    tenant_id: string | null,
   } | null,
 };

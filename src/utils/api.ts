@@ -16,7 +16,6 @@ export default (function() {
           'Access-Control-Allow-Origin': '*',
         }
       };
-      console.log(config);
       
       return axios.get(url, config);
     },
@@ -93,7 +92,6 @@ export default (function() {
           'Access-Control-Allow-Origin': '*',
         }
       };
-      console.log(config);
 
       return axios.get(url, config);
     },

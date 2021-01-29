@@ -4,17 +4,13 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import { AuthProvider } from './contexts/auth-context';
-
 import Amplify from "aws-amplify";
 import awsExports from "./aws-exports";
 Amplify.configure(awsExports);
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );

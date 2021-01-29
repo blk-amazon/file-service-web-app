@@ -3,7 +3,6 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { List, ListItem, ListItemText, MenuItem, Menu, ListItemIcon, Modal } from '@material-ui/core';
 
 import { ExpandLess, ExpandMore, ExitToApp } from '@material-ui/icons';
-import { useAuth } from '../contexts/auth-context';
 
 type ImageViewerProps = {
   isOpen: boolean,

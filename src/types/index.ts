@@ -15,15 +15,10 @@ export interface IFile {
 
 export interface IUser {
   id: string,
-  first_name: string,
-  last_name: string,
   username: string,
   email: string,
   isConfirmed: boolean,
-  data: any,
-  attributes: {
-    'custom:tenant_id': string
-  }
+  tenantId: string,
 };
 
 export interface IAuthContext {
