@@ -68,6 +68,8 @@ const AuthStateApp = () => {
               });
             }
           });
+        } else {
+          setUser(undefined);
         }
         // Auth.currentSession()
         //     .then(data => console.log(data))
