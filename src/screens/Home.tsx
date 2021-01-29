@@ -69,10 +69,11 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
   const [fileUploading, setFileUploading] = React.useState<boolean>(false);
 
   const getFiles = async (skipLoading: boolean = false) => {
-    const creds = await Auth.currentUserCredentials();
-    // console.log("currentUserCredentials", creds);
+    const session = await Auth.currentSession();
+    console.log("currentUserCredentials", session);
 
-    setFilesLoading(true);
+    if (!skipLoading)
+      setFilesLoading(true);
 
     try {
       const { username, tenantId } = user;
@@ -112,7 +113,8 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
       console.log(error);
     }
 
-    setFilesLoading(false);
+    if (!skipLoading)
+      setFilesLoading(false);
   }
 
   const initializeSubscriptions = () => {
