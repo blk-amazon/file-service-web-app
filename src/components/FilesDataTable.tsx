@@ -12,20 +12,21 @@ import { CircularProgress, IconButton, Toolbar, Typography } from '@material-ui/
 import DownloadIcon from '@material-ui/icons/CloudDownload';
 import { IFile } from '../types';
 import restApi from '../utils/api';
+import dayjs from 'dayjs';
 
 interface Column {
   id: 'file_name' | 'owner_id' | 'size' | 'last_modified';
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => string;
+  format?: (value: any) => string;
 }
 
 const columns: Column[] = [
   { id: 'file_name', label: 'File Name', minWidth: 170 },
   { id: 'owner_id', label: 'Owner ID', minWidth: 100 },
   { id: 'size', label: 'Size', minWidth: 100 },
-  { id: 'last_modified', label: 'Last Modified Date', minWidth: 170 },
+  { id: 'last_modified', label: 'Last Modified Date', minWidth: 170, format: (value) => dayjs(value).format("M/D/YYYY\n hh:mm A") },
 ];
 
 const useStyles = makeStyles({
@@ -70,7 +71,7 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
         </Typography>
       </Toolbar>
       <TableContainer className={classes.container}>
-        {(props.files.length > 0) ? (
+        {(files.length > 0) ? (
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -99,7 +100,7 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
                     const value = file[column.id];
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                        {column.format ? column.format(value) : value}
                       </TableCell>
                     );
                   })}
@@ -113,12 +114,7 @@ const FilesDataTable: React.FunctionComponent<FilesDataTableProps> = (props) => 
                             ...isDownloading,
                             key_name,
                           ]);
-                          // setIsDownloading((prevState) => {
-                          //   const newArray = prevState;
-                          //   newArray.push(key_name);
-                          //   console.log("newArray", newArray);
-                          //   return newArray;
-                          // });
+
                           restApi.downloadFile(bucket_name, key_name)
                           .then((response) => {
                             console.log("download response", response);

@@ -14,11 +14,12 @@ import CustomContainer from '../components/CustomContainer';
 import FilesDataTable from '../components/FilesDataTable';
 
 import logo from '../assets/images/logo-white.png';
+import logoSm from '../assets/images/logo-sm.png';
 
 import restApi from '../utils/api';
 import graphqlApi from '../utils/graphql';
 
-import { AppBar, Container, Toolbar, Typography, Box, LinearProgress } from '@material-ui/core';
+import { AppBar, Container, Toolbar, Typography, Box, LinearProgress, Hidden } from '@material-ui/core';
 
 import UserMenu from '../components/UserMenu';
 import { IFile, IUser, SubscriptionResponse } from '../types';
@@ -51,6 +52,10 @@ const useStyles = makeStyles((theme) => ({
     color: "#bdbdbd",
     outline: "none",
     transition: "border .24s ease-in-out",
+  },
+  logo: {
+    maxHeight: "32px",
+    maxWidth: "25%",
   }
 }));
 
@@ -127,58 +132,7 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
       if (tenant_id && tenant_id === user.tenantId) {
         getFiles(true);
       }
-
-      // const { data } = response.value;
-      // const file = data.onCreateS3File!;
-      // const key_name = file.key_name;
-      // const key_parts = key_name ? key_name.split("/") : [];
-      // const [ tenant_id, user_id, file_name ] = key_parts;
-      // // console.log("key_parts", key_parts);
-
-      // const item: IFile = {
-      //   key_name: key_name,
-      //   bucket_name: file.bucket_name,
-      //   file_name: file_name,
-      //   owner_id: user_id,
-      //   last_modified: file.last_modified,
-      //   size: file.size,
-      //   tenant_id: tenant_id,
-      //   url: file.url,
-      // };
-
-      // setFiles(prevState => {
-      //   const newFiles = unionBy([item], prevState, 'key_name');
-      //   return newFiles;
-      // });
     });
-
-    // graphqlApi.query(onUpdateS3File, (response: SubscriptionResponse<OnUpdateS3FileSubscription>) => {
-    //   console.log("onUpdateS3FileSubscription", response);
-
-    //   const { data } = response.value;
-    //   const file = data.onUpdateS3File!;
-    //   const key_name = file.key_name;
-    //   const key_parts = key_name ? key_name.split("/") : [];
-    //   const [ tenant_id, user_id, file_name ] = key_parts;
-
-    //   const item: IFile = {
-    //     key_name: key_name,
-    //     bucket_name: file.bucket_name,
-    //     file_name: file_name,
-    //     owner_id: user_id,
-    //     last_modified: file.last_modified,
-    //     size: file.size,
-    //     tenant_id: tenant_id,
-    //     url: file.url,
-    //   };
-    
-    //   // console.log("files", files);
-
-    //   setFiles(prevState => {
-    //     const newFiles = unionBy([item], prevState, 'key_name');
-    //     return newFiles;
-    //   });
-    // });
   }
 
   const onDrop = async (acceptedFiles: Array<File>) => {
@@ -197,9 +151,23 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
     };
 
     for (var i=0; i<acceptedFiles.length; i++) {
-      restApi.putObject(acceptedFiles[i], headers)
+      const file = acceptedFiles[i];
+      restApi.putObject(file, headers)
       .then((response) => {
-        console.log(response);
+        console.log("file", file);
+        setFiles(prevState => {
+          const item: IFile = {
+            id_concat: `${user.username}^${user.tenantId}`,
+            key_name: `${user.tenantId}/${user.username}/${file.name}`,
+            owner_id: user.username,
+            tenant_id: user.tenantId,
+            size: file.size,
+            last_modified: new Date().toString(),
+            file_name: file.name,
+          }
+          const newFiles = unionBy([item], prevState, 'key_name');
+          return newFiles;
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -219,7 +187,12 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
       <CssBaseline />
       <AppBar elevation={1} position="static" style={{ backgroundColor: "#16a3b8" }}>
         <Toolbar style={{ justifyContent: "space-between" }}>
-          <img src={logo} style={{ height: 32 }} alt="MasterControl Logo" />
+          <Hidden mdUp>
+            <img src={logoSm} style={{ height: 32 }} alt="MasterControl Logo" />
+          </Hidden>
+          <Hidden smDown>
+            <img src={logo} style={{ height: 32 }} alt="MasterControl Logo" />
+          </Hidden>
           <Typography variant="h6" className={classes.title}>
             {user.tenantId}
           </Typography>

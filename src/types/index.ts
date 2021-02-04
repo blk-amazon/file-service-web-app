@@ -7,7 +7,7 @@ export interface IFile {
   tenant_id: string | null,
   size: Number | null,
 	last_modified: string | null,
-  url: string | null,
+  url?: string | null,
 	id_concat?: string | null,
 	bucket_name?: string | null,
 	
