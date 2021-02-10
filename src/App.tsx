@@ -4,11 +4,10 @@ import { Container, CssBaseline, makeStyles } from '@material-ui/core';
 
 import logo from './assets/images/logo.png';
 import './App.css';
-import { Auth } from 'aws-amplify';
 
 import { AmplifyAuthenticator, AmplifySignIn, AmplifySignUp } from '@aws-amplify/ui-react';
 import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
-import { CognitoUser, CognitoUserAttribute } from 'amazon-cognito-identity-js';
+import { CognitoUser } from 'amazon-cognito-identity-js';
 
 import { IUser } from './types';
 import HomeScreen from './screens/Home';
@@ -71,9 +70,6 @@ const AuthStateApp = () => {
         } else {
           setUser(undefined);
         }
-        // Auth.currentSession()
-        //     .then(data => console.log(data))
-        //     .catch(err => console.log(err));
       });
   }, []);
 

@@ -8,7 +8,7 @@ import { unionBy } from 'lodash';
 
 import { Auth } from 'aws-amplify';
 
-import { onCreateS3File, onCreateS3FileMessage, onUpdateS3File } from '../graphql/subscriptions';
+import { onCreateS3FileMessage } from '../graphql/subscriptions';
 
 import CustomContainer from '../components/CustomContainer';
 import FilesDataTable from '../components/FilesDataTable';
@@ -23,7 +23,7 @@ import { AppBar, Container, Toolbar, Typography, Box, LinearProgress, Hidden } f
 
 import UserMenu from '../components/UserMenu';
 import { IFile, IUser, SubscriptionResponse } from '../types';
-import { OnCreateS3FileSubscription, OnUpdateS3FileSubscription, OnCreateS3FileMessageSubscription } from '../utils/api.graphql';
+import { OnCreateS3FileMessageSubscription } from '../utils/api.graphql';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -175,7 +175,7 @@ const HomeScreen: React.FunctionComponent<HomeScreenProps> = (props) => {
     }
 
     setFileUploading(false);
-  };  
+  };
 
   React.useEffect(() => {
     getFiles();
